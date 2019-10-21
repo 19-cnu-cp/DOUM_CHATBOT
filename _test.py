@@ -2,8 +2,8 @@ from chatbotpack.nlubringer import goNlu
 from chatbotpack.dialog import DialogManager
 from doumdoum_dialog import DoumdoumDialogStrategy
 
-ㅈqtext = '농협은행 대표 이름 말해'
-qtext = '농협은행의 우대조건은 뭐니'
+qtext = '한강건설 대표 이름 말해'
+#qtext = '농협은행의 우대조건은 뭐니'
 na = goNlu(qtext)
 
 dm = DialogManager( DoumdoumDialogStrategy() )

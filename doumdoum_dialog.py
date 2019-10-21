@@ -13,6 +13,11 @@ class DoumdoumDialogStrategy(DialogStrategy):
         self._intentDict = self.setupIntentDict() #Intent 당 책임Function 매핑.
         self._km = DoumdoumKnowledgeManager()
 
+    def __del__(self):
+        # DoumdoumKnowledgeManager는 사용 후 반드시 close해 주어야 한다고 했다.
+        print("DoumdoumDialogStrategy.__del__")
+        self._km.close()
+
     def setupIntentDict(self) :
         return {
             'recruit.reperNm':      self.drReperNm,
@@ -22,9 +27,17 @@ class DoumdoumDialogStrategy(DialogStrategy):
     # --- Dialog Response Creator ---
 
     def drReperNm(self, ctx, nlu):  #대표자명 물어보기
-        corpNm = nlu.slots()['corpNm'] #회사명
+        # 1. 슬롯 확인
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            return DialogResponse().setText('죄송합니다. 회사 대표자를 물어보는 것으로 이해했습니다만 정확히 알아듣지 못했습니다.')
+        # 2. 지식 확인
         reprNm = self._km.getReprNm(corpNm)
-        return DialogResponse().setText('%s의 대표자명은 %s입니다.' % (corpNm, reprNm))
+        if reprNm :
+            return DialogResponse().setText('%s의 대표자명은 %s입니다.' % (corpNm, reprNm))
+        else :
+            return DialogResponse().setText('죄송합니다. %s의 대표자명을 아직 알고 있지 않습니다.' % corpNm)
 
     def drYrSalesAmt(self, ctx, nlu):
         raise NotImplementedError()
