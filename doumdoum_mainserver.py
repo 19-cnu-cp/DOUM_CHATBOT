@@ -15,6 +15,8 @@ class DoumdoumHTTPHandler(BaseHTTPRequestHandler):
         self._responseOfJson({'name':'여기는 루트 디렉토리입니다.', 'your_url':self.path})
     
     def postChat(self):
+        ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
+
         self._responseOfJson({'name':'대충 챗봇 결과입니다.', 'your_url':self.path})
 
     def postFallback(self):
