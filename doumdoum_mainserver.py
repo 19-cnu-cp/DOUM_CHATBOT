@@ -21,7 +21,7 @@ class DoumdoumHTTPHandler(BaseHTTPRequestHandler):
         self._responseOfJson({'name':'여기는 루트 디렉토리입니다.', 'your_url':self.path})
     
     def postChat(self):
-        ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+        ctype, _ = cgi.parse_header(self.headers.get('content-type'))
         #Request는 JSON으로 이루어져야 하므로.
         if ctype != 'application/json':
             self.send_response(400) #Bad request
