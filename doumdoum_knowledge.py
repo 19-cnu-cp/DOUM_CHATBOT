@@ -32,4 +32,16 @@ class DoumdoumKnowledgeManager:
             else:
                 return None
 
-    
+    def getCorpByName(self, corpNm):
+        '''
+        회사명 corpNm에 해당하는 회사 정보. dict로 되어있다.
+        찾지 못하면 None.
+        '''
+        sql = "SELECT * FROM Corp WHERE name=%s"
+        with self._conn.cursor() as crs:
+            crs.execute(sql, (corpNm,))
+            result = crs.fetchone()
+            if result:
+                return result
+            else:
+                return None

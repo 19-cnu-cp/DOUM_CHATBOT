@@ -2,5 +2,5 @@
 from doumdoum_knowledge import DoumdoumKnowledgeManager
 
 km = DoumdoumKnowledgeManager()
-print( km.getReprNm('컴투스') )
+print( km.getCorpByName('컴투스') )
 km.close()
