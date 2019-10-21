@@ -8,16 +8,39 @@ Doumdoum: The main server.
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import cgi
+from chatbotpack.nlubringer import goNlu
+from chatbotpack.dialog import DialogManager
+from doumdoum_dialog import DoumdoumDialogStrategy
+
 
 class DoumdoumHTTPHandler(BaseHTTPRequestHandler):
+
+    _dialogManager = DialogManager( DoumdoumDialogStrategy() )
 
     def postRoot(self):
         self._responseOfJson({'name':'여기는 루트 디렉토리입니다.', 'your_url':self.path})
     
     def postChat(self):
-        ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
-
-        self._responseOfJson({'name':'대충 챗봇 결과입니다.', 'your_url':self.path})
+        ctype, pdict = cgi.parse_header(self.headers.get('content-type'))
+        #Request는 JSON으로 이루어져야 하므로.
+        if ctype != 'application/json':
+            self.send_response(400) #Bad request
+            self.end_headers()
+            self.wfile.write("json으로 request되지 않았습니다.".encode() )
+            return
+            
+        # 이제 request 내용을 chatbotWork에게 넘겨주어야 한다.
+        try:
+            length = int(self.headers.get('content-length'))
+            payload_string = self.rfile.read(length).decode('utf-8')
+            payload = json.loads(payload_string) if payload_string else None
+            drDict = self._chatbotWork(payload) #DialogResponse as dict
+            self._responseOfJson(drDict)
+        except:
+            self.send_response(500) #Internal Server Error
+            self.end_headers()
+            self.wfile.write("챗봇 처리과정에서 착오가 생겼습니다.".encode() )
+            raise
 
     def postFallback(self):
         self.send_response(404)
@@ -30,6 +53,28 @@ class DoumdoumHTTPHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'application/json')
         self.end_headers()
         self.wfile.write( json.dumps(d, ensure_ascii=False).encode() )
+
+    # 우리의 임무
+    def _chatbotWork (self, payload):
+        '''
+        사용자의 요청을 받아 응답을 dict로 돌려준다.
+        응답 = {'text':..., 'meta':...}
+        '''
+        if not (payload and 'qtext' in payload and 'meta' in payload):
+            raise ValueError('The payload should have \'meta\' and \'qtext\'')
+        qtext = payload['qtext']
+        meta = payload['meta']
+        print("qtext = %s" % qtext)
+        print("meta = %s" % meta)
+
+        ni = goNlu(qtext)
+        dr = self._dialogManager.goDialog(meta, ni) #dr = DialogResponse 객체
+        
+        # 'meta' (경우에 따라 구현 안될 수도 있음)
+        # ='fin' : 챗봇과 대화 끝남. e.g. Slot-filling할 필요 없음.
+        # ='ctd' : 챗봇과 대화가 이어질 필요 있음. e.g. Slot-filling할 필요 있음.
+        return {'text':dr.text(), 'meta':dr.meta()}
+        
 
     def do_GET(self):
         self._responseOfJson({'name':'죄송합니다. GET 구현은 아직 되지 않았습니다.'})
@@ -44,10 +89,7 @@ class DoumdoumHTTPHandler(BaseHTTPRequestHandler):
         else :
             self.postFallback()
 
-
-def chatbotWork ():
-    raise Exception('There must be \'qtext\'')
-
+    
 
 def main():
     server_addr = ('', 5566)

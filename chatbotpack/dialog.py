@@ -19,7 +19,8 @@ class DialogManager:
 
 class DialogResponse:
     def __init__(self):
-        self._text = '디폴트'
+        self._text = 'not set text'
+        self._meta = 'not set meta'
 
     def text(self):
         # e.g. '컴투스는 연 매출 OOO억원입니다.'
@@ -27,6 +28,14 @@ class DialogResponse:
 
     def setText(self, t):
         self._text = t
+        return self
+
+    def meta(self):
+        # e.g. 'fin'
+        return self._meta
+
+    def setMeta(self, m):
+        self._meta = m
         return self
 
 
