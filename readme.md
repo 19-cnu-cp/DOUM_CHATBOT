@@ -21,6 +21,7 @@ CREATE TABLE Corp (
     addr VARCHAR(255), #회사주소
     homepg VARCHAR(255), #회사홈페이지 주소
     busi_size_id INT, #회사규모
+    reprNm VARCHAR(16), #대표자 이름
     FOREIGN KEY (busi_size_id)
         REFERENCES BusiSize (busi_size_id)
 );
