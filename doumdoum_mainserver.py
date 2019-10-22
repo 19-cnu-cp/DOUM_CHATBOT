@@ -31,10 +31,13 @@ class DoumdoumHTTPHandler(BaseHTTPRequestHandler):
             
         # 이제 request 내용을 chatbotWork에게 넘겨주어야 한다.
         try:
+            # Payload
             length = int(self.headers.get('content-length'))
             payload_string = self.rfile.read(length).decode('utf-8')
-            payload = json.loads(payload_string) if payload_string else None
+            payload = json.loads(payload_string) if payload_string else None'
+            # DialogResponse를 얻어야 한다.
             drDict = self._chatbotWork(payload) #DialogResponse as dict
+            # HTTP Response
             self._responseOfJson(drDict)
         except:
             self.send_response(500) #Internal Server Error
