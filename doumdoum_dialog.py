@@ -26,7 +26,8 @@ class DoumdoumDialogStrategy(DialogStrategy):
 
     # --- Dialog Response Creator ---
 
-    def drReperNm(self, ctx, nlu):  #대표자명 물어보기
+    # (회사명)의 대표자 성함이 뭐야?
+    def drReperNm(self, ctx, nlu):
         # 1. 슬롯 확인
         if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
@@ -39,6 +40,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
         else :
             return DialogResponse().setText('죄송합니다. %s의 대표자명을 아직 알고 있지 않습니다.' % corpNm)
 
+    # (회사명)의 연매출액은 얼마야?
     def drYrSalesAmt(self, ctx, nlu):
         raise NotImplementedError()
 
