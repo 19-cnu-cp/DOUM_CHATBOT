@@ -1,9 +1,11 @@
+# 챗봇의 대강스러운 작동 원리를 테스트한다.
+
 from chatbotpack.nlubringer import goNlu
 from chatbotpack.dialog import DialogManager
 from doumdoum_dialog import DoumdoumDialogStrategy
 
-qtext = '컴투스 대표 이름 말해'
-#qtext = '농협은행의 우대조건은 뭐니'
+qtext = '컴투스 연매출 얼마야'
+#qtext = '컴투스 대표자 누구니'
 na = goNlu(qtext)
 
 dm = DialogManager( DoumdoumDialogStrategy() )

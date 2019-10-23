@@ -24,6 +24,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
             'recruit.yrSalesAmt':   self.drYrSalesAmt
         }
 
+
     # --- Dialog Response Creator ---
 
     # (회사명)의 대표자 성함이 뭐야?
@@ -32,20 +33,39 @@ class DoumdoumDialogStrategy(DialogStrategy):
         if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
-            return DialogResponse().setText('죄송합니다. 회사 대표자를 물어보는 것으로 이해했습니다만 정확히 알아듣지 못했습니다.')
+            return DialogResponse().setText('죄송합니다. 회사 대표자를 물어보는 것으로 이해했습니다만 어느 회사에 대해 물어보는 지 알 수 없었습니다.')
         # 2. 지식 확인
-        reprNm = self._km.getReprNm(corpNm)
-        if reprNm :
+        corp = self._km.getCorpByName(corpNm)
+        if corp and corp['reprNm'] : #corp이 None이 아니고, DB상 reprNm칼럼 값이 NULL이 아니었으면.
+            reprNm = corp['reprNm']
             return DialogResponse().setText('%s의 대표자명은 %s입니다.' % (corpNm, reprNm))
         else :
             return DialogResponse().setText('죄송합니다. %s의 대표자명을 아직 알고 있지 않습니다.' % corpNm)
 
+
     # (회사명)의 연매출액은 얼마야?
     def drYrSalesAmt(self, ctx, nlu):
-        raise NotImplementedError()
+        # 1. 슬롯 확인
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            return DialogResponse().setText('죄송합니다. 연매출액을 물어보는 것으로 이해했습니다만 어느 회사에 대해 물어보는 지 알 수 없었습니다.')
+        # 2. 지식 확인 
+        corp = self._km.getCorpByName(corpNm)
+        print(corp)
+        if corp and corp['yrSalesAmt'] :
+            amt = corp['yrSalesAmt']  # 단위: 천원
+            amt_hr = self.helper_humanReadableYrSalesAmt(amt)
+            return DialogResponse().setText('%s의 연 매출액은 %s입니다.' % (corpNm, amt_hr))
+        else :
+            return DialogResponse().setText('죄송합니다. %s의 연 매출액을 알고 있지 않습니다.' % corpNm)
+
+    def helper_humanReadableYrSalesAmt(self, amt):
+        return "얼마얼마원"
 
     # ------
     
+
     def makeDialogResponse(self, givenMetaInfo, givenNluInfo):
         # Meta info vs. Context (둘 다 맥락 정보)
         # Meta info: 사용자가 주는 것 (더 적음)
