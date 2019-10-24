@@ -1,9 +1,14 @@
 이 프로젝트에서 쓰인 3rd-party Libraries
 =========================================
 * requests
+* pymysql
 
 Database tables
 ===============
+```
+mysql -u doummaria -p
+```
+
 * BusiSize 회사규모
 ``` mysql
 CREATE TABLE BusiSize (
@@ -53,7 +58,7 @@ insert into Corp values(3, '신세계푸드', 1263684652, '서울 성등구 성�
 - DialogResponse \<Class>
   - Variable
     - _text
-
+g
   - Function
     - text()
     - setText(t)
