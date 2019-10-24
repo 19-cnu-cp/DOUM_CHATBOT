@@ -75,7 +75,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
         corp = self._km.getCorpByName(corpNm)
         if corp and corp['addr'] : #corp이 None이 아니고, DB상 corpAddr칼럼 값이 NULL이 아니었으면.
             corpAddr = corp['addr']
-            return DialogResponse().setText('%s의 대표자명은 %s입니다.' % (corpNm, corpAddr))
+            return DialogResponse().setText('%s의 주소는 %s입니다.' % (corpNm, corpAddr))
         else :
             return DialogResponse().setText('죄송합니다. %s의 주소를 아직 알고 있지 않습니다.' % corpNm)
 
