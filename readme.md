@@ -11,7 +11,13 @@ CREATE TABLE BusiSize (
     name VARCHAR(255) NOT NULL #회사규모의 이름 (중소기업, 대기업, ...)
 );
 ```
-
+* insert문
+``` mysql
+insert into BusiSize values(1, '대기업');
+insert into BusiSize values(2, '중견기업');
+insert into BusiSize values(3, '중소기업');
+insert into BusiSize values(4, '공기업');
+```
 * Corp 회사
 ``` mysql
 CREATE TABLE Corp (
@@ -26,7 +32,12 @@ CREATE TABLE Corp (
         REFERENCES BusiSize (busi_size_id)
 );
 ```
-
+* insert문
+```
+insert into Corp values(1, '농협은행', 12225242000, '서울 중구 통일로 120', 1, '이대훈');
+insert into Corp values(2, '컴투스', 479405296, '서울 금천구 가산디지털 1로 131, A', 2, '송병준');
+insert into Corp values(3, '신세계푸드', 1263684652, '서울 성등구 성수일로 56, 4-7층', 1, '김운아/성열기');
+```
 클래스
 =========
 
