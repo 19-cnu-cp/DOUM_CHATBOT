@@ -21,7 +21,8 @@ class DoumdoumDialogStrategy(DialogStrategy):
     def setupIntentDict(self) :
         return {
             'recruit.reperNm':      self.drReperNm,
-            'recruit.yrSalesAmt':   self.drYrSalesAmt
+            'recruit.yrSalesAmt':   self.drYrSalesAmt,
+            'recruit.corpAddr':     self.drCorpAddr,
         }
 
 
@@ -62,6 +63,21 @@ class DoumdoumDialogStrategy(DialogStrategy):
 
     def helper_humanReadableYrSalesAmt(self, amt):
         return "얼마얼마원"
+
+    # (회사명)의 위치는 어디니?
+    def drCorpAddr(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            return DialogResponse().setText('죄송합니다. 회사주소를 물어보는 것으로 이해했습니다만 어느 회사에 대해 물어보는 지 알 수 없었습니다.')
+        # 2. 지식 확인
+        corp = self._km.getCorpByName(corpNm)
+        if corp and corp['addr'] : #corp이 None이 아니고, DB상 corpAddr칼럼 값이 NULL이 아니었으면.
+            corpAddr = corp['addr']
+            return DialogResponse().setText('%s의 대표자명은 %s입니다.' % (corpNm, corpAddr))
+        else :
+            return DialogResponse().setText('죄송합니다. %s의 주소를 아직 알고 있지 않습니다.' % corpNm)
 
     # ------
     
