@@ -37,7 +37,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
             return DialogResponse().setText('죄송합니다. 회사 대표자를 물어보는 것으로 이해했습니다만 어느 회사에 대해 물어보는 지 알 수 없었습니다.')
         # 2. 지식 확인
         corp = self._km.getCorpByName(corpNm)
-        if corp and corp['reprNm'] : #corp이 None이 아니고, DB상 reprNm칼럼 값이 NULL이 아니었으면.
+        if corp and corp['reprNm'] : #corp이 테이블에 존재하고, DB상 reprNm칼럼 값이 NULL이 아니었으면.
             reprNm = corp['reprNm']
             return DialogResponse().setText('%s의 대표자명은 %s입니다.' % (corpNm, reprNm))
         else :
@@ -73,7 +73,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
             return DialogResponse().setText('죄송합니다. 회사주소를 물어보는 것으로 이해했습니다만 어느 회사에 대해 물어보는 지 알 수 없었습니다.')
         # 2. 지식 확인
         corp = self._km.getCorpByName(corpNm)
-        if corp and corp['addr'] : #corp이 None이 아니고, DB상 corpAddr칼럼 값이 NULL이 아니었으면.
+        if corp and corp['addr'] :
             corpAddr = corp['addr']
             return DialogResponse().setText('%s의 주소는 %s입니다.' % (corpNm, corpAddr))
         else :
