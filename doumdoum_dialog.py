@@ -1,7 +1,7 @@
 from chatbotpack.dialog import DialogStrategy, DialogResponse
 from datetime import datetime, timedelta
 from doumdoum_knowledge import DoumdoumKnowledgeManager
-
+from 
 
 # Todo : nickname from givenMetaInfo
 # e.g.: nickname = 'doumdoum_webpage_@_어쩌구아이피'
@@ -27,6 +27,8 @@ class DoumdoumDialogStrategy(DialogStrategy):
 
 
     # --- Dialog Response Creator ---
+    # 모든 dr함수는 그 매개변수가 (self, ctx, nlu)로 이루어져야 한다.
+    # 단, dr함수 외에 헬퍼 함수를 둘 수도 있다.
 
     # (회사명)의 대표자 성함이 뭐야?
     def drReperNm(self, ctx, nlu):
@@ -34,6 +36,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
         if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
+            # 슬롯이 비었으니 
             return DialogResponse().setText('죄송합니다. 회사 대표자를 물어보는 것으로 이해했습니다만 어느 회사에 대해 물어보는 지 알 수 없었습니다.')
         # 2. 지식 확인
         corp = self._km.getCorpByName(corpNm)
@@ -63,6 +66,21 @@ class DoumdoumDialogStrategy(DialogStrategy):
 
     def helper_humanReadableYrSalesAmt(self, amt):
         return "얼마얼마원"
+
+    # (회사명)의 위치는 어디니?
+    def drCorpAddr(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            return DialogResponse().setText('죄송합니다. 회사주소를 물어보는 것으로 이해했습니다만 어느 회사에 대해 물어보는 지 알 수 없었습니다.')
+        # 2. 지식 확인
+        corp = self._km.getCorpByName(corpNm)
+        if corp and corp['addr'] :
+            corpAddr = corp['addr']
+            return DialogResponse().setText('%s의 주소는 %s입니다.' % (corpNm, corpAddr))
+        else :
+            return DialogResponse().setText('죄송합니다. %s의 주소를 아직 알고 있지 않습니다.' % corpNm)
 
     # (회사명)의 위치는 어디니?
     def drCorpAddr(self, ctx, nlu):
