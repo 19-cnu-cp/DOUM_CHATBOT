@@ -1,7 +1,6 @@
 from chatbotpack.dialog import DialogStrategy, DialogResponse
 from datetime import datetime, timedelta
-from doumdoum_knowledge import DoumdoumKnowledgeManager
-from 
+from doumdoum_knowledge import DoumdoumKnowledgeManager 
 
 # Todo : nickname from givenMetaInfo
 # e.g.: nickname = 'doumdoum_webpage_@_어쩌구아이피'
@@ -27,8 +26,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
 
 
     # --- Dialog Response Creator ---
-    # 모든 dr함수는 그 매개변수가 (self, ctx, nlu)로 이루어져야 한다.
-    # 단, dr함수 외에 헬퍼 함수를 둘 수도 있다.
+    # 모든 dr함수는 그 매개변수가 (self, ctx, nlu)로 이루어지며, 반환은 객체 DialogResponse여야 한다.
 
     # (회사명)의 대표자 성함이 뭐야?
     def drReperNm(self, ctx, nlu):
@@ -36,11 +34,13 @@ class DoumdoumDialogStrategy(DialogStrategy):
         if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
-            # 슬롯이 비었으니 
-            return DialogResponse().setText('죄송합니다. 회사 대표자를 물어보는 것으로 이해했습니다만 어느 회사에 대해 물어보는 지 알 수 없었습니다.')
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm') #drSlotExtra_corpNm에서 corpNm에 대해 처리해주길 바라는 거임.
+            return DialogResponse().setText('무슨 회사의 대표자를 말하십니까?')
         # 2. 지식 확인
         corp = self._km.getCorpByName(corpNm)
         if corp and corp['reprNm'] : #corp이 테이블에 존재하고, DB상 reprNm칼럼 값이 NULL이 아니었으면.
+            # 정상흐름
             reprNm = corp['reprNm']
             return DialogResponse().setText('%s의 대표자명은 %s입니다.' % (corpNm, reprNm))
         else :
@@ -110,10 +110,13 @@ class DoumdoumDialogStrategy(DialogStrategy):
         if 'nickname' in givenMetaInfo :
             nick = givenMetaInfo['nickname']
             # 1. nickname에 해당하는 Context를 가져오고
-            
+            if nick in self._ctxDict:
+                ctx = self._ctxDict[nick]
             # 2. 없으면 만들어라.
-        
-        else : print('DoumdoumDialogStrategy.makeDialogResponse: No nickname?')
+            else :
+                ctx = DoumdoumContext(givenMetaInfo)
+                self._ctxDict[nick] = ctx
+        else : raise Exception('No nickname.')
 
         # 3. 응답을 하자
         if intent in self._intentDict :
@@ -122,6 +125,10 @@ class DoumdoumDialogStrategy(DialogStrategy):
         else :
             # 3.2. 주어진 Intent를 처리할 수 없을 때 응답.
             return self.drFallback(ctx, nlu)
+
+        # 4. 그 Context에게 대화 한 턴이 끝났음을 알려줘야 한다.
+        ctx.endDialog()
+
 
     def drFallback(self, ctx, nlu):
         print('DoumdoumDialogStrategy.drFallback: %s' % nlu.intent())
@@ -149,3 +156,10 @@ class DoumdoumContext:
         l_given = timedelta(seconds=sec)
         l_this = datetime.now() - self._timestamp
         return l_this >= l_given
+
+    def setExpected(self, whatSlot):
+
+
+    def endDialog(self):
+
+
