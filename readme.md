@@ -12,8 +12,8 @@ mysql -u doummaria -p
 * BusiSize 회사규모
 ``` mysql
 CREATE TABLE BusiSize (
-    busi_size_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL #회사규모의 이름 (중소기업, 대기업, ...)
+  busi_size_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL #회사규모의 이름 (중소기업, 대기업, ...)
 );
 ```
 * insert문
@@ -26,16 +26,65 @@ insert into BusiSize values(4, '공기업');
 * Corp 회사
 ``` mysql
 CREATE TABLE Corp (
-    corp_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL, #회사명
-    yrSalesAmt DECIMAL(16,3), #연매출액 (단위:천원)
-    addr VARCHAR(255), #회사주소
-    homepg VARCHAR(255), #회사홈페이지 주소
-    busi_size_id INT, #회사규모
-    reprNm VARCHAR(16), #대표자 이름
-    FOREIGN KEY (busi_size_id)
-        REFERENCES BusiSize (busi_size_id)
+  corp_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL, #회사명
+  yrSalesAmt DECIMAL(16,3), #연매출액 (단위:천원)
+  addr VARCHAR(255), #회사주소
+  homepg VARCHAR(255), #회사홈페이지 주소
+  busi_size_id INT, #회사규모
+  reprNm VARCHAR(16), #대표자 이름
+  FOREIGN KEY (busi_size_id)
+      REFERENCES BusiSize (busi_size_id)
 );
+```
+* Wanted 채용
+``` mysql
+CREATE TABLE Wanted (
+  wanted_id INT AUTO_INCREMENT PRIMARY KEY,
+  corp_id INT NOT NULL, #회사
+  collectPsncnt INT, #채용인원
+  receiptOpenDt Date, #채용시작일
+  receiptCloseDt Date, #채용마감일
+  edu_id INT, #학력조건 (고졸이상...)
+  emp_tp_id INT, #계약조건 (정규직 or 비정규직)
+  contactTelno VARCHAR(255), #담당자 연락번호
+  enter_tp_id INT, #경력조건 (경력직 or 신입)
+  FOREIGN KEY (corp_id) REFERENCES Corp (corp_id),
+  FOREIGN KEY (edu_id) REFERENCES Edu (edu_id),
+  FOREIGN KEY (emp_tp_id) REFERENCES EmpTp (emp_tp_id),
+  FOREIGN KEY (enter_tp_id) REFERENCES EnterTp (enter_tp_id)
+);
+```
+* Edu 학력조건
+```
++--------+-------------------------+
+| edu_id | name                    |
++--------+-------------------------+
+|      1 | 학력 무관               |
+|      2 | 고졸 이상               |
+|      3 | 대졸 4년제 이상         |
+|      4 | 대졸 2년제 이상         |
+|      5 | 대학원 석사 이상        |
+|      6 | 대학원 박사 이상        |
++--------+-------------------------+
+```
+* EmpTp 계약조건
+```
++-----------+--------------+
+| emp_tp_id | name         |
++-----------+--------------+
+|         1 | 정규직       |
+|         2 | 비정규직     |
++-----------+--------------+
+```
+* EnterTp 경력조건
+```
++-------------+-----------+
+| enter_tp_id | name      |
++-------------+-----------+
+|           1 | 경력직    |
+|           2 | 신입      |
++-------------+-----------+
 ```
 * insert문
 ```
@@ -43,6 +92,9 @@ insert into Corp values(1, '농협은행', 12225242000, '서울 중구 통일로
 insert into Corp values(2, '컴투스', 479405296, '서울 금천구 가산디지털 1로 131, A', 2, '송병준');
 insert into Corp values(3, '신세계푸드', 1263684652, '서울 성등구 성수일로 56, 4-7층', 1, '김운아/성열기');
 ```
+
+
+
 클래스
 =========
 
