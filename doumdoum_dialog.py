@@ -1,6 +1,7 @@
 from chatbotpack.dialog import DialogStrategy, DialogResponse
+from chatbotpack.nlubringer import NluInfo
 from datetime import datetime, timedelta
-from doumdoum_knowledge import DoumdoumKnowledgeManager 
+from doumdoum_knowledge import DoumdoumKnowledgeManager
 
 # Todo : nickname from givenMetaInfo
 # e.g.: nickname = 'doumdoum_webpage_@_어쩌구아이피'
@@ -9,20 +10,22 @@ from doumdoum_knowledge import DoumdoumKnowledgeManager
 class DoumdoumDialogStrategy(DialogStrategy):
     def __init__(self):
         self._ctxDict = dict() #맥락(DoumdoumContext)을 저장해둔다.
-        self._intentDict = self.setupIntentDict() #Intent 당 책임Function 매핑.
+        self.setupIntentDict() #Intent 당 책임Function 매핑.
         self._km = DoumdoumKnowledgeManager()
+
+    def setupIntentDict(self) :
+        self._intentDict = {
+            'recruit.reperNm'           : self.drReperNm,
+            'recruit.yrSalesAmt'        : self.drYrSalesAmt,
+            'recruit.corpAddr'          : self.drCorpAddr,
+
+            'recruit.slotExtra.corpNm'  : self.drSlotExtra_corpNm
+        }
 
     def __del__(self):
         # DoumdoumKnowledgeManager는 사용 후 반드시 close해 주어야 한다고 했다.
         print("DoumdoumDialogStrategy.__del__")
         self._km.close()
-
-    def setupIntentDict(self) :
-        return {
-            'recruit.reperNm':      self.drReperNm,
-            'recruit.yrSalesAmt':   self.drYrSalesAmt,
-            'recruit.corpAddr':     self.drCorpAddr,
-        }
 
 
     # --- Dialog Response Creator ---
@@ -67,20 +70,6 @@ class DoumdoumDialogStrategy(DialogStrategy):
     def helper_humanReadableYrSalesAmt(self, amt):
         return "얼마얼마원"
 
-    # (회사명)의 위치는 어디니?
-    def drCorpAddr(self, ctx, nlu):
-        # 1. 슬롯 확인
-        if nlu.slots() != None and 'corpNm' in nlu.slots() :
-            corpNm = nlu.slots()['corpNm'] #회사명
-        else :
-            return DialogResponse().setText('죄송합니다. 회사주소를 물어보는 것으로 이해했습니다만 어느 회사에 대해 물어보는 지 알 수 없었습니다.')
-        # 2. 지식 확인
-        corp = self._km.getCorpByName(corpNm)
-        if corp and corp['addr'] :
-            corpAddr = corp['addr']
-            return DialogResponse().setText('%s의 주소는 %s입니다.' % (corpNm, corpAddr))
-        else :
-            return DialogResponse().setText('죄송합니다. %s의 주소를 아직 알고 있지 않습니다.' % corpNm)
 
     # (회사명)의 위치는 어디니?
     def drCorpAddr(self, ctx, nlu):
@@ -97,6 +86,28 @@ class DoumdoumDialogStrategy(DialogStrategy):
         else :
             return DialogResponse().setText('죄송합니다. %s의 주소를 아직 알고 있지 않습니다.' % corpNm)
 
+    
+    # (회사명)이야.
+    def drSlotExtra_corpNm(self, ctx, nlu):
+        # 슬롯 필링이 요구될 때만 
+        if not ctx.wasExpectedLast('corpNm') :
+            return DialogResponse().setText('죄송합니다. 무슨 의도로 말하셨는지 모르겠습니다.')
+        # 슬롯 확인
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm']
+        else :
+            return DialogResponse().setText('죄송합니다. 회사 이름을 말하신 것 같은데 제대로 알아듣지 못 했습니다.')
+        # 이제 분기를 하자. 전 대화가 무슨 Intent였냐에 따라 분기된다.
+        def reperNm():
+            return self.drReperNm( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        mySwitch = { #반드시 DialogResponse를 리턴해야 한다.
+            'recruit.reperNm': reperNm,
+        }
+        lastIntent = ctx.whatGivenIntentLast()
+        if not lastIntent in mySwitch :
+            return DialogResponse().setText('죄송합니다. 전에 하셨던 질문에 대해 아직 어떻게 답해야 할 지 모르겠습니다.')
+        return mySwitch[lastIntent]()
+        
     # ------
     
 
@@ -118,6 +129,9 @@ class DoumdoumDialogStrategy(DialogStrategy):
                 self._ctxDict[nick] = ctx
         else : raise Exception('No nickname.')
 
+        # 3. 응답을 시작하겠음을 그 Context에게 알려줘야 한다.
+        ctx.startDialog(intent)
+
         # 3. 응답을 하자
         if intent in self._intentDict :
             # 3.1. 정상 흐름.
@@ -126,8 +140,6 @@ class DoumdoumDialogStrategy(DialogStrategy):
             # 3.2. 주어진 Intent를 처리할 수 없을 때 응답.
             return self.drFallback(ctx, nlu)
 
-        # 4. 그 Context에게 대화 한 턴이 끝났음을 알려줘야 한다.
-        ctx.endDialog()
 
 
     def drFallback(self, ctx, nlu):
@@ -141,10 +153,16 @@ class DoumdoumContext:
     '''
     def __init__(self, givenMetaInfo):
         self._timestamp = datetime.now()
+        
         if 'nickname' in givenMetaInfo :
             self._nickname = givenMetaInfo['nickname']
         else :
             print('DoumdoumContext.__init__: No nickname?')
+
+        self._lastGivenIntent = None
+        self._currentGivenIntent = None
+        self._lastExpectedSlot = None
+        self._currentExpectedSlot = None
 
     def createdAt(self):
         return self._timestamp
@@ -158,8 +176,23 @@ class DoumdoumContext:
         return l_this >= l_given
 
     def setExpected(self, whatSlot):
+        self._currentExpectedSlot = whatSlot
+
+    def wasExpectedLast(self, whatSlot):
+        return self._lastExpectedSlot == whatSlot
+
+    def whatGivenIntentLast(self):
+        return self._lastGivenIntent
+
+    def startDialog(self, givenIntent):
+        # _current** -> _last**
+        # _current는 초기화
+        self._lastGivenIntent = self._currentGivenIntent
+        #self._currentGivenIntent = None
+        self._currentGivenIntent = givenIntent
+        self._lastExpectedSlot = self._currentExpectedSlot
+        self._currentExpectedSlot = None
 
 
-    def endDialog(self):
-
-
+def newNluinfoOfSlots(slots):
+    return NluInfo('임시텍스트', 'defaultIntent', slots)

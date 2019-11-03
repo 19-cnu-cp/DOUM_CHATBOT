@@ -5,11 +5,16 @@ NLU_INPUT_URL = 'http://0.0.0.0:5555/nlu?text=%s'
 
 class NluInfo:
     
-    def __init__(self, nluDict):
+    def __init__(self, text=None, intent=None, slots=None):
+        self._text = text
+        self._intent = intent
+        self._slots = slots
+
+    def setup(self, nluDict):
         self._text = nluDict['text']
         self._intent = nluDict['nlu']['intent'][0]['tag']
         self._slots = slotsFromBio(self._text, nluDict['nlu']['slot']['tags'])
-    
+
     def text(self):
         '''e.g. 컴투스 무슨 전공 필요하나'''
         return self._text
@@ -29,7 +34,8 @@ def goNlu (text) :
     NLU 정보(NluInfo)를 준다.
     return된 객체에서 여러가지 메소드로 필요한 정보에 접근할 수 있다.
     '''
-    info = NluInfo(getNluFromServer(text))
+    info = NluInfo()
+    info.setup(getNluFromServer(text))
     return info
 
 def getNluFromServer (text) :
