@@ -2,6 +2,7 @@ from chatbotpack.dialog import DialogStrategy, DialogResponse
 from chatbotpack.nlubringer import NluInfo
 from datetime import datetime, timedelta
 from doumdoum_knowledge import DoumdoumKnowledgeManager
+import re
 
 # Todo : nickname from givenMetaInfo
 # e.g.: nickname = 'doumdoum_webpage_@_어쩌구아이피'
@@ -59,7 +60,6 @@ class DoumdoumDialogStrategy(DialogStrategy):
             return DialogResponse().setText('죄송합니다. 연매출액을 물어보는 것으로 이해했습니다만 어느 회사에 대해 물어보는 지 알 수 없었습니다.')
         # 2. 지식 확인 
         corp = self._km.getCorpByName(corpNm)
-        print(corp)
         if corp and corp['yrSalesAmt'] :
             amt = corp['yrSalesAmt']  # 단위: 천원
             amt_hr = self.helper_humanReadableYrSalesAmt(amt)
@@ -68,7 +68,25 @@ class DoumdoumDialogStrategy(DialogStrategy):
             return DialogResponse().setText('죄송합니다. %s의 연 매출액을 알고 있지 않습니다.' % corpNm)
 
     def helper_humanReadableYrSalesAmt(self, amt):
-        return "얼마얼마원"
+        if amt < 0 : return "적자"
+        if amt == 0 : return "0원"
+        # 0:만, 1:억...
+        maan = ['만', '억', '조', '경', '해', '자', '양']
+        # amt는 천단위이므로 마지막 숫자는 천, 마지막에서 둘째...다섯째는 만이다.
+        samt = str(int(amt))
+        i = len(samt) - 1 #for samt
+        result = ([samt[-1] + "천"] if samt[-1] != '0' else [])
+        if i <= 0 : return result[0]
+        mi = 0 #for maan
+        while True :
+            if i-4 <= 0 : break
+            if samt[i-4:i] != '0000' :
+                result.append(re.sub(r"^0*", "", samt[i-4:i]) + maan[mi])
+            i = i-4
+            mi += 1
+        result.append(samt[0:i] + maan[mi])
+        result.reverse()
+        return " ".join(result) + " 원"
 
 
     # (회사명)의 위치는 어디니?
