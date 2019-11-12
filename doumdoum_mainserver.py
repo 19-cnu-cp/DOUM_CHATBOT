@@ -79,19 +79,23 @@ class DoumdoumHTTPHandler(BaseHTTPRequestHandler):
         return {'text':dr.text(), 'meta':dr.meta()}
         
 
+    #다른 도메인에서 이 서버에 ajax를 할 수 있게 하려면...
+    def end_headers(self):
+        self.send_header("Access-Control-Allow-Origin", "*")
+        super().end_headers()
+
     def do_GET(self):
         self._responseOfJson({'name':'죄송합니다. GET 구현은 아직 되지 않았습니다.'})
 
     def do_POST(self):
         pathPostMap = {
-            '/'         :self.postRoot,
-            '/api/chat'    :self.postChat
+            '/'             :self.postRoot,
+            '/api/chat'     :self.postChat
         }
         if self.path in pathPostMap :
             pathPostMap[self.path]()
         else :
             self.postFallback()
-
     
 
 def main():
