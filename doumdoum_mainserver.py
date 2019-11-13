@@ -80,9 +80,20 @@ class DoumdoumHTTPHandler(BaseHTTPRequestHandler):
         
 
     #다른 도메인에서 이 서버에 ajax를 할 수 있게 하려면...
-    def end_headers(self):
+    def _sendCorsHeaders(self):
         self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "x-api-key,Content-Type")
+
+
+    def end_headers(self):
+        self._sendCorsHeaders()
         super().end_headers()
+
+    # 기성 웹브라우저의 CORS검사에 대비함.
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.end_headers()
 
     def do_GET(self):
         self._responseOfJson({'name':'죄송합니다. GET 구현은 아직 되지 않았습니다.'})
