@@ -49,6 +49,18 @@ CREATE TABLE Wanted (
   emp_tp_id INT, #계약조건 (정규직 or 비정규직)
   contactTelno VARCHAR(255), #담당자 연락번호
   enter_tp_id INT, #경력조건 (경력직 or 신입)
+
+  jobsNm VARCHAR(255) #모집직종
+  major VARCHAR(255) #요구전공
+  pfCond VARCHAR(255) #우대조건
+  submitDoc VARCHAR(255) #제출서류준비물
+  workRegion VARCHAR(255) #근무예정지
+  fourInsNps BOOLEAN #4대보험 중 국민연금 National Person Service
+  fourInsEi BOOLEAN #4대보험 중 고용보험 Employment Insurance
+  fourInsWc BOOLEAN #4대보험 중 산재보험 Worker's Compensation
+  fourInsNhi BOOLEAN #4대보험 중 건강보험 National Health Insurance
+  annualAvgSal DECIMAL(16,3) #평균연봉 (단위:천원, 즉 **만원이라면 **0천원으로.)
+
   FOREIGN KEY (corp_id) REFERENCES Corp (corp_id),
   FOREIGN KEY (edu_id) REFERENCES Edu (edu_id),
   FOREIGN KEY (emp_tp_id) REFERENCES EmpTp (emp_tp_id),

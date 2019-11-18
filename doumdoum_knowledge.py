@@ -45,3 +45,11 @@ class DoumdoumKnowledgeManager:
                 return result
             else:
                 return None
+
+    def getWantedByCorpnm(self, corpNm):
+        '''
+        회사명 corpNm에 해당하는 모집정보. dict로 되어있다.
+        찾지 못하면 None.
+        '''
+        #https://stackoverflow.com/questions/28698722/pymysql-insert-null-or-a-string
+        pass
