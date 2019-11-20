@@ -96,15 +96,14 @@ class DoumdoumKnowledgeManager:
     def getWantedByCorpnm(self, corpNm):
         '''
         회사명 corpNm에 해당하는 모집정보. dict 배열로 되어있다.
-        가장 최근에 등록된 모집정보가 첫번째에 온다.
+        가장 나중에 마감하는 것이 첫번째에 온다.
         찾지 못하면 None.
         '''
         sql = '''
         SELECT W.* FROM Wanted W
         JOIN Corp C ON W.corp_id = C.corp_id
-        WHERE C.name = %s
-        ORDER BY W.receiptOpenDt DESC
-        LIMIT 3
+        WHERE C.name = %s AND W.receiptCloseDt >= CURDATE()
+        ORDER BY W.receiptCloseDt DESC
         '''
         with self._conn.cursor() as crs:
             crs.execute(sql, (corpNm))
