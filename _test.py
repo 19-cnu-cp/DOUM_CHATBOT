@@ -13,13 +13,15 @@ na = goNlu(qtext)
 
 class DialogResponseTest(unittest.TestCase):
     dm = DialogManager( DoumdoumDialogStrategy() )
-    myMeta = {}
-    #myMeta = {'nickname':'doumdoum_gigagenie_@_128.159.0.0'}
+    #myMeta = {}
+    myMeta = {'nickname':'doumdoum_gigagenie_@_128.159.0.0'}
 
     def testGoDialog(self):
     # func이름은 test로 무조건 실행되어야 한다.
-        nluDict = MakeDict('컴투스 회사위치가 어디야', 'recruit.corpAddr', 3).getDict()
-        na = NluInfo(nluDict)
+        nluDict = MakeDict('효성 업무직종이 어떻게 돼?', 'recruit.jobsNm', 2).getDict()
+        na = NluInfo()
+        na.setup(nluDict)
+        
         dr = self.dm.goDialog(self.myMeta, na)
         print('----------------------------')
         print("답변객체 : %s" % dr)

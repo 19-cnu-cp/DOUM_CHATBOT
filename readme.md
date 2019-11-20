@@ -6,7 +6,7 @@
 Database tables
 ===============
 ```
-mysql -u doummaria -p
+mysql -u doummaria -p doumdoum
 ```
 
 * BusiSize 회사규모
