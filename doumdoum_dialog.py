@@ -20,6 +20,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
             'recruit.yrSalesAmt'        : self.drYrSalesAmt,
             'recruit.corpAddr'          : self.drCorpAddr,
             'recruit.homePg'            : self.drHomePg,
+            'recruit.busiSize'          : self.drBusiSize,
 
             'recruit.jobsNm'            : self.drJobsNm,
 
@@ -87,7 +88,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
         else :
             # 회사명 슬롯이 없을 때의 분기
             ctx.setExpected('corpNm')
-            return DialogResponse().setText('어느 회사에 대해서 말하십니까?')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
         # 2. 지식 확인 
         corp = self._km.getCorpByName(corpNm)
         if corp and corp['yrSalesAmt'] :
@@ -106,7 +107,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
         else :
             # 회사명 슬롯이 없을 때의 분기
             ctx.setExpected('corpNm')
-            return DialogResponse().setText('어느 회사에 대해서 말하십니까?')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
         # 2. 지식 확인
         corp = self._km.getCorpByName(corpNm)
         if corp and corp['addr'] :
@@ -124,14 +125,33 @@ class DoumdoumDialogStrategy(DialogStrategy):
         else :
             # 회사명 슬롯이 없을 때의 분기
             ctx.setExpected('corpNm')
-            return DialogResponse().setText('어느 회사의 홈페이지를 물으십니까?')
+            return DialogResponse().setText('어느 회사의 홈페이지를 물으십니까?').setMeta('cnt')
         # 2. 지식 확인
         corp = self._km.getCorpByName(corpNm)
-        if corp and corp['homePg'] :
-            homePg = corp['homePg']
+        if corp and corp['homepg'] :
+            homePg = corp['homepg']
             return DialogResponse().setText('%s의 홈페이지는 %s입니다.' % (corpNm, homePg))
         else :
             return DialogResponse().setText('%s의 홈페이지 주소를 아직 알고 있지 않습니다. 죄송합니다.' % corpNm)
+
+
+    # (회사명)의 회사 규모?
+    def drBusiSize(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사의 기업 규모를 물으십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        corp = self._km.getCorpByName(corpNm)
+        if corp and corp['busi_size_id'] :
+            busiSizeId = corp['busi_size_id']
+            busiSize = ['대기업','중견기업','중소기업','공기업'][busiSizeId-1]
+            return DialogResponse().setText('%s의 회사 규모는 %s입니다.' % (corpNm, busiSize))
+        else :
+            return DialogResponse().setText('%s의 회사 규모를 아직 알고 있지 않습니다. 죄송합니다.' % corpNm)
 
 
     # (회사명)의 모집직종이 어떻게 되?
@@ -142,7 +162,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
         else :
             # 회사명 슬롯이 없을 때의 분기
             ctx.setExpected('corpNm')
-            return DialogResponse().setText('어느 회사에 대해서 말하십니까?')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
         # 2. 지식 확인
         wanted = self._km.getWantedByCorpnm(corpNm)[0] #[0]이 있는 것에 주의
         if wanted and wanted['jobsNm']:
@@ -172,8 +192,12 @@ class DoumdoumDialogStrategy(DialogStrategy):
             return self.drCorpAddr( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
         def homePg():
             return self.drHomePg( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def busiSize():
+            return self.drBusiSize( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+
         def jobsNm():
             return self.drJobsNm( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+
         def fallback():
             return DialogResponse().setText('죄송합니다. 전에 하셨던 질문에 대해 아직 어떻게 답해야 할 지 모르겠습니다.')
         mySwitch = { #반드시 DialogResponse를 리턴해야 한다.

@@ -97,7 +97,6 @@ class DoumdoumKnowledgeManager:
         '''
         회사명 corpNm에 해당하는 모집정보. dict 배열로 되어있다.
         가장 나중에 마감하는 것이 첫번째에 온다.
-        찾지 못하면 None.
         '''
         sql = '''
         SELECT W.*, C.name as corpNm FROM Wanted W
@@ -108,11 +107,28 @@ class DoumdoumKnowledgeManager:
         with self._conn.cursor() as crs:
             crs.execute(sql, (corpNm))
             result = crs.fetchall()
+            return result
+
+
+    def getLastWantedByCorpnm(self, corpNm):
+        '''
+        회사명 corpNm에 해당하는 최신 모집정보. dict 배열로 되어있다.
+        찾지 못하면 None.
+        '''
+        sql = '''
+        SELECT W.*, C.name as corpNm FROM Wanted W
+        JOIN Corp C ON W.corp_id = C.corp_id
+        WHERE C.name = %s AND W.receiptCloseDt >= CURDATE()
+        ORDER BY W.receiptCloseDt DESC
+        '''
+        with self._conn.cursor() as crs:
+            crs.execute(sql, (corpNm))
+            result = crs.fetchone()
             if result:
                 return result
             else:
                 return None
-
+    
 
     def addNewWanted(self,
             corpNm, collectPsncnt=None, receiptOpenDt=None, receiptCloseDt=None,
