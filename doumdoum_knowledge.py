@@ -100,7 +100,7 @@ class DoumdoumKnowledgeManager:
         찾지 못하면 None.
         '''
         sql = '''
-        SELECT W.* FROM Wanted W
+        SELECT W.*, C.name as corpNm FROM Wanted W
         JOIN Corp C ON W.corp_id = C.corp_id
         WHERE C.name = %s AND W.receiptCloseDt >= CURDATE()
         ORDER BY W.receiptCloseDt DESC

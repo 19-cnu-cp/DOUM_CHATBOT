@@ -42,7 +42,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
         else :
             # 회사명 슬롯이 없을 때의 분기
             ctx.setExpected('corpNm') #drSlotExtra_corpNm에서 corpNm에 대해 처리해주길 바라는 거임.
-            return DialogResponse().setText('무슨 회사의 대표자를 말하십니까?')
+            return DialogResponse().setText('무슨 회사의 대표자를 말하십니까?').setMeta('cnt')
         # 2. 지식 확인
         corp = self._km.getCorpByName(corpNm)
         if corp and corp['reprNm'] : #corp이 테이블에 존재하고, DB상 reprNm칼럼 값이 NULL이 아니었으면.
@@ -120,6 +120,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
         wanted = self._km.getWantedByCorpnm(corpNm)[0] #[0]이 있는 것에 주의
         if wanted and wanted['jobsNm']:
             jobsNm = wanted['jobsNm']
+            print(wanted)
             return DialogResponse().setText('%s의 모집직종은 %s입니다.' % (corpNm, jobsNm))
         else :
             return DialogResponse().setText('%s의 모집직종은 알려져 있지 않습니다. 죄송합니다.' % corpNm)

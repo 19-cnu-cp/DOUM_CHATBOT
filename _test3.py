@@ -10,14 +10,14 @@ qtext = '대표자 누구니'
 na = goNlu(qtext)
 myMeta = {'nickname':'doumdoum_gigagenie_@_128.159.0.0'}
 dr = dm.goDialog(myMeta, na)
-print("답변객체 : %s" % dr)
 print("답변text() : %s" % dr.text())
+print("답변meta() : %s" % dr.meta())
 print('----------------------------')
 
 qtext = '컴투스 말이야'
 na = goNlu(qtext)
 myMeta = {'nickname':'doumdoum_gigagenie_@_128.159.0.0'}
 dr = dm.goDialog(myMeta, na)
-print("답변객체 : %s" % dr)
 print("답변text() : %s" % dr.text())
+print("답변meta() : %s" % dr.meta())
 print('----------------------------')
