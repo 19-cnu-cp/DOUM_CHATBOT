@@ -23,6 +23,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
             'recruit.busiSize'          : self.drBusiSize,
 
             'recruit.jobsNm'            : self.drJobsNm,
+            'recruit.collectPsncnt'     : self.drCollectPsncnt,
 
             'recruit.slotExtra.corpNm'  : self.drSlotExtra_corpNm
         }
@@ -154,7 +155,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
             return DialogResponse().setText('%s의 회사 규모를 아직 알고 있지 않습니다. 죄송합니다.' % corpNm)
 
 
-    # (회사명)의 모집직종이 어떻게 되?
+    # 6. (회사명)의 모집직종이 어떻게 되?
     def drJobsNm(self, ctx, nlu):
         # 1. 슬롯 확인
         if nlu.slots != None and 'corpNm' in nlu.slots() :
@@ -164,13 +165,30 @@ class DoumdoumDialogStrategy(DialogStrategy):
             ctx.setExpected('corpNm')
             return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
         # 2. 지식 확인
-        wanted = self._km.getWantedByCorpnm(corpNm)[0] #[0]이 있는 것에 주의
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
         if wanted and wanted['jobsNm']:
             jobsNm = wanted['jobsNm']
-            print(wanted)
             return DialogResponse().setText('%s의 모집직종은 %s입니다.' % (corpNm, jobsNm))
         else :
             return DialogResponse().setText('%s의 모집직종은 알려져 있지 않습니다. 죄송합니다.' % corpNm)
+
+    
+    # 8. (회사명)의 모집인원은 몇 명이니?
+    def drCollectPsncnt(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['collectPsncnt']:
+            collectPsncnt = wanted['collectPsncnt']
+            return DialogResponse().setText('%s의 모집 인원은 %s명입니다.' % (corpNm, collectPsncnt))
+        else :
+            return DialogResponse().setText('%s의 모집 인원은 정해져 있지 않습니다.' % corpNm)
 
     
     # (회사명)이야.
@@ -197,6 +215,9 @@ class DoumdoumDialogStrategy(DialogStrategy):
 
         def jobsNm():
             return self.drJobsNm( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def collectPsncnt():
+            return self.drCollectPsncnt( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+
 
         def fallback():
             return DialogResponse().setText('죄송합니다. 전에 하셨던 질문에 대해 아직 어떻게 답해야 할 지 모르겠습니다.')
