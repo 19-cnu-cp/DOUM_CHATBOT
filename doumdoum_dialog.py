@@ -191,6 +191,169 @@ class DoumdoumDialogStrategy(DialogStrategy):
             return DialogResponse().setText('%s의 모집 인원은 정해져 있지 않습니다.' % corpNm)
 
     
+    # 9. (회사명)의 경력조건?
+    def drEnterTpNm(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['enter_tp_id']:
+            enterTpId = wanted['enter_tp_id']
+            enterTp = ['경력직', '신입'][enterTpId-1]
+            return DialogResponse().setText('%s의 경력 조건은 %s입니다.' % (corpNm, enterTp))
+        else :
+            return DialogResponse().setText('%s의 경력 조건은 정해져 있지 않습니다.' % corpNm)
+
+    
+    ddef dr___(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['___']:
+            ___ = wanted['___']
+            return DialogResponse().setText('%s의 ___' % (corpNm, ___))
+        else :
+            return DialogResponse().setText('%s의 ___은 정해져 있지 않습니다.' % corpNm)
+
+    
+    def drEduNm(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['edu_id']:
+            edu_id = wanted['edu_id']
+            edu = ['학력 무관', '고졸 이상', '대졸 4년제 이상', '대졸 2년제 이상', '대학원 석사 이상', '대학원 박사 이상'][edu_id]
+            return DialogResponse().setText('%s의 요구 학력은 %s입니다.' % (corpNm, edu))
+        else :
+            return DialogResponse().setText('%s의 요구 학력은 정해져 있지 않습니다.' % corpNm)
+
+    
+    def drMajor(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['major']:
+            major = wanted['major']
+            return DialogResponse().setText('%s에서 요구하는 전공으로 %s가 있습니다.' % (corpNm, major))
+        else :
+            return DialogResponse().setText('%s의 요구 전공은 정해져 있지 않습니다.' % corpNm)
+
+    
+    def drPfCond(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['pfCond']:
+            pfCond = wanted['pfCond']
+            return DialogResponse().setText('%s의 우대조건은 %s입니다.' % (corpNm, pfCond))
+        else :
+            return DialogResponse().setText('%s의 우대조건은 정해져 있지 않습니다.' % corpNm)
+
+    
+    def drSubmitDoc(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['submitDoc']:
+            submitDoc = wanted['submitDoc']
+            return DialogResponse().setText('%s의 제출 서류 준비물은 %s입니다.' % (corpNm, submitDoc))
+        else :
+            return DialogResponse().setText('%s의 제출 서류 준비물은 정해져 있지 않습니다.' % corpNm)
+
+    
+    def drWorkRegion(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['workRegion']:
+            workRegion = wanted['workRegion']
+            return DialogResponse().setText('%s의 근무예정지는 %s입니다.' % (corpNm, workRegion))
+        else :
+            return DialogResponse().setText('%s의 근무예정지는 정해져 있지 않습니다.' % corpNm)
+
+    
+    def drFourIns(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['fourInsNps'] and wanted['fourInsEi'] and wanted['fourInsWc'] and wanted['fourInsNhi']:
+            insArr = []
+            if wanted['fourInsNps']: insArr.append('국민연금')
+            if wanted['fourInsEi']: insArr.append('고용보험')
+            if wanted['fourInsWc']: insArr.append('산재보험')
+            if wanted['fourInsNhi']: insArr.append('건강보험')
+            if len(insArr) > 0:
+                return DialogResponse().setText('%s에서 가입하는 4대보험으로 %s가 있습니다.' % (corpNm, ", ".insArr))
+            else:
+                return DialogResponse().setText('%s에서는 4대보험에 들지 않습니다.' % (corpNm))
+        else :
+            return DialogResponse().setText('%s의 4대보험 가입 여부는 아직 아는 바가 없습니다. 죄송합니다.' % corpNm)
+
+    
+    def drContactTelNo(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['contactTelNo']:
+            contactTelNo = wanted['contactTelNo']
+            return DialogResponse().setText('%s의 채용담당자 전화번호는 %s입니다.' % (corpNm, contactTelNo))
+        else :
+            return DialogResponse().setText('%s의 채용담당자 전화번호는 정해져 있지 않습니다.' % corpNm)
+
+    
     # (회사명)이야.
     def drSlotExtra_corpNm(self, ctx, nlu):
         # 슬롯 필링이 요구될 때만 
@@ -226,8 +389,10 @@ class DoumdoumDialogStrategy(DialogStrategy):
             'recruit.yrSalesAmt': yrSalesAmt,
             'recruit.corpAddr': corpAddr,
             'recruit.homePg': homePg,
+            'recruit.busiSize': busiSize,
 
-            'recruit.jobsNm': jobsNm
+            'recruit.jobsNm': jobsNm,
+            'recruit.collectPsncnt': collectPsncnt
         }
         lastIntent = ctx.whatGivenIntentLast()
         if not lastIntent in mySwitch :
