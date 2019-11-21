@@ -21,10 +21,19 @@ class DoumdoumDialogStrategy(DialogStrategy):
             'recruit.corpAddr'          : self.drCorpAddr,
             'recruit.homePg'            : self.drHomePg,
             'recruit.busiSize'          : self.drBusiSize,
-
             'recruit.jobsNm'            : self.drJobsNm,
             'recruit.collectPsncnt'     : self.drCollectPsncnt,
-
+            'recruit.enterTpNm'         : self.drEnterTpNm,
+            'recruit.eduNm'             : self.drEduNm,
+            'recruit.major'             : self.drMajor,
+            'recruit.pfCond'            : self.drPfCond,
+            'recruit.submitDoc'         : self.drSubmitDoc,
+            'recruit.workRegion'        : self.drWorkRegion,
+            'recruit.fourIns'           : self.drFourIns,
+            'recruit.contactTelno'      : self.drContactTelNo,
+            'recruit.receiptCloseDt'    : self.drReceiptCloseDt,
+            'recruit.salTpNm'           : self.drSalTpNm,
+            'recruit.empTpNm'           : self.drEmpTpNm,
             'recruit.slotExtra.corpNm'  : self.drSlotExtra_corpNm
         }
 
@@ -210,7 +219,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
             return DialogResponse().setText('%s의 경력 조건은 정해져 있지 않습니다.' % corpNm)
 
     
-    ddef dr___(self, ctx, nlu):
+    def dr___(self, ctx, nlu):
         # 1. 슬롯 확인
         if nlu.slots != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
@@ -353,6 +362,61 @@ class DoumdoumDialogStrategy(DialogStrategy):
         else :
             return DialogResponse().setText('%s의 채용담당자 전화번호는 정해져 있지 않습니다.' % corpNm)
 
+    # 19. (회사명) #접수마감일
+    def drReceiptCloseDt(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm']
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['receiptCloseDt'] :
+            receiptCloseDt = wanted['receiptCloseDt']
+            receiptCloseDt_hr = receiptCloseDt.strftime('%Y년 %m월 %d일')
+            return DialogResponse().setText('%s의 접수마감일은 %s입니다.' % (corpNm, receiptCloseDt_hr))
+        else :
+            return DialogResponse().setText('%s의 접수마감일을 아직 알고 있지 않습니다.' % corpNm)
+
+    
+    # 20. (회사명) #임금조건
+    def drSalTpNm(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['annualAvgSal']:
+            avs = wanted['annualAvgSal']
+            annualAvgSal_hr = self.humanReadableMoney_cheon(avs)
+            return DialogResponse().setText('%s의 연봉은 %s입니다.' % (corpNm, annualAvgSal_hr))
+        else :
+            return DialogResponse().setText('%s의 연봉을 아직 알고 있지 않습니다.' % corpNm)
+
+    
+    # 21. (회사명)의 고용 형태는 어떻게 되니?
+    def drEmpTpNm(self, ctx, nlu):
+        # 1. 슬롯 확인
+        if nlu.slots != None and 'corpNm' in nlu.slots() :
+            corpNm = nlu.slots()['corpNm'] #회사명
+        else :
+            # 회사명 슬롯이 없을 때의 분기
+            ctx.setExpected('corpNm')
+            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt') # setMeta는 프론트의 동작과 관련됨.
+        # 2. 지식 확인
+        wanted = self._km.getLastWantedByCorpnm(corpNm)
+        if wanted and wanted['emp_tp_id']:
+            emp_tp_id = wanted['emp_tp_id']
+            return DialogResponse().setText('%s의 고용 형태는 %s입니다.' % (corpNm, emp_tp_id))
+        else :
+            return DialogResponse().setText('%s의 고용형태를 알고 있지 않습니다.' % corpNm)
+    
     
     # (회사명)이야.
     def drSlotExtra_corpNm(self, ctx, nlu):
@@ -380,7 +444,28 @@ class DoumdoumDialogStrategy(DialogStrategy):
             return self.drJobsNm( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
         def collectPsncnt():
             return self.drCollectPsncnt( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
-
+        def enterTpNm():
+            return self.drEnterTpNm( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def eduNm():
+            return self.drEduNm( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def major():
+            return self.drMajor( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def pfCond():
+            return self.drPfCond( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def submitDoc():
+            return self.drSubmitDoc( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def workRegion():
+            return self.drWorkRegion( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def fourIns():
+            return self.drFourIns( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def contactTelno():
+            return self.drContactTelNo( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def receiptCloseDt():
+            return self.drReceiptCloseDt( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def salTpNm():
+            return self.drSalTpNm( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
+        def empTpNm():
+            return self.drEmpTpNm( ctx, newNluinfoOfSlots({'corpNm':corpNm}) )
 
         def fallback():
             return DialogResponse().setText('죄송합니다. 전에 하셨던 질문에 대해 아직 어떻게 답해야 할 지 모르겠습니다.')
@@ -392,7 +477,19 @@ class DoumdoumDialogStrategy(DialogStrategy):
             'recruit.busiSize': busiSize,
 
             'recruit.jobsNm': jobsNm,
-            'recruit.collectPsncnt': collectPsncnt
+            'recruit.collectPsncnt': collectPsncnt,
+            'recruit.enterTpNm':enterTpNm,
+            'recruit.eduNm':eduNm,
+            'recruit.major':major,
+            'recruit.pfCond':pfCond,
+            'recruit.submitDoc':submitDoc,
+            'recruit.workRegion':workRegion,
+            'recruit.fourIns':fourIns,
+            'recruit.contactTelno':contactTelno,
+            'recruit.receiptCloseDt':receiptCloseDt,
+            'recruit.salTpNm':salTpNm,
+            'recruit.empTpNm':empTpNm
+ 
         }
         lastIntent = ctx.whatGivenIntentLast()
         if not lastIntent in mySwitch :
