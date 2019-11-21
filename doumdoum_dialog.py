@@ -167,7 +167,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     # 6. (회사명)의 모집직종이 어떻게 되?
     def drJobsNm(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -185,7 +185,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     # 8. (회사명)의 모집인원은 몇 명이니?
     def drCollectPsncnt(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -203,7 +203,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     # 9. (회사명)의 경력조건?
     def drEnterTpNm(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -219,26 +219,9 @@ class DoumdoumDialogStrategy(DialogStrategy):
             return DialogResponse().setText('%s의 경력 조건은 정해져 있지 않습니다.' % corpNm)
 
     
-    def dr___(self, ctx, nlu):
-        # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
-            corpNm = nlu.slots()['corpNm'] #회사명
-        else :
-            # 회사명 슬롯이 없을 때의 분기
-            ctx.setExpected('corpNm')
-            return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
-        # 2. 지식 확인
-        wanted = self._km.getLastWantedByCorpnm(corpNm)
-        if wanted and wanted['___']:
-            ___ = wanted['___']
-            return DialogResponse().setText('%s의 ___' % (corpNm, ___))
-        else :
-            return DialogResponse().setText('%s의 ___은 정해져 있지 않습니다.' % corpNm)
-
-    
     def drEduNm(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -256,7 +239,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     
     def drMajor(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -273,7 +256,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     
     def drPfCond(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -290,7 +273,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     
     def drSubmitDoc(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -307,7 +290,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     
     def drWorkRegion(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -324,7 +307,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     
     def drFourIns(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -339,7 +322,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
             if wanted['fourInsWc']: insArr.append('산재보험')
             if wanted['fourInsNhi']: insArr.append('건강보험')
             if len(insArr) > 0:
-                return DialogResponse().setText('%s에서 가입하는 4대보험으로 %s가 있습니다.' % (corpNm, ", ".insArr))
+                return DialogResponse().setText('%s에서 가입하는 4대보험으로 %s가 있습니다.' % (corpNm, ", ".join(insArr)))
             else:
                 return DialogResponse().setText('%s에서는 4대보험에 들지 않습니다.' % (corpNm))
         else :
@@ -348,7 +331,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     
     def drContactTelNo(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -365,7 +348,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     # 19. (회사명) #접수마감일
     def drReceiptCloseDt(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm']
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -384,7 +367,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     # 20. (회사명) #임금조건
     def drSalTpNm(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
@@ -403,7 +386,7 @@ class DoumdoumDialogStrategy(DialogStrategy):
     # 21. (회사명)의 고용 형태는 어떻게 되니?
     def drEmpTpNm(self, ctx, nlu):
         # 1. 슬롯 확인
-        if nlu.slots != None and 'corpNm' in nlu.slots() :
+        if nlu.slots() != None and 'corpNm' in nlu.slots() :
             corpNm = nlu.slots()['corpNm'] #회사명
         else :
             # 회사명 슬롯이 없을 때의 분기
