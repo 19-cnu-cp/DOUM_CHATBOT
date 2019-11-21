@@ -356,8 +356,8 @@ class DoumdoumDialogStrategy(DialogStrategy):
             return DialogResponse().setText('어느 회사에 대해서 말하십니까?').setMeta('cnt')
         # 2. 지식 확인
         wanted = self._km.getLastWantedByCorpnm(corpNm)
-        if wanted and wanted['contactTelNo']:
-            contactTelNo = wanted['contactTelNo']
+        if wanted and wanted['contactTelno']:
+            contactTelNo = wanted['contactTelno']
             return DialogResponse().setText('%s의 채용담당자 전화번호는 %s입니다.' % (corpNm, contactTelNo))
         else :
             return DialogResponse().setText('%s의 채용담당자 전화번호는 정해져 있지 않습니다.' % corpNm)
